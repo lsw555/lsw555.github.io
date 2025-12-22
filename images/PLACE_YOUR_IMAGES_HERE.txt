@@ -1,0 +1,19 @@
+Place the following images in this folder:
+
+1. profile.jpg - Your profile/headshot photo
+   Recommended size: 500x500px (square)
+
+2. project1.jpg - Screenshot or image of your first project
+   Recommended size: 800x600px
+
+3. project2.jpg - Screenshot or image of your second project
+   Recommended size: 800x600px
+
+4. project3.jpg - Screenshot or image of your third project
+   Recommended size: 800x600px
+
+Tips:
+- Use JPG format for photos
+- Keep file sizes under 500KB for faster loading
+- You can compress images at: tinypng.com
+- Use descriptive filenames if you add more images
