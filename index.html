@@ -1,115 +1,489 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Name - Portfolio</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Sanguk Lee Lab | Media & Communication | HUFS</title>
+  <meta name="description" content="Sanguk Lee (Assistant Professor, Department of Media and Communication, Hankuk University of Foreign Studies). Research on AI & society, computational social science, and science communication. Recruiting undergraduate and graduate students." />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Sanguk Lee Lab | HUFS" />
+  <meta property="og:description" content="Research on AI & society, computational social science, and science communication. Join the lab." />
+  <meta property="og:type" content="website" />
+  <!-- <meta property="og:image" content="images/og-image.png" /> -->
+
+  <!-- Favicons (optional) -->
+  <!-- <link rel="icon" href="images/favicon.png" /> -->
+
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Optional: modern font (remove if you prefer system font only) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Schema.org JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Sanguk Lee",
+    "jobTitle": "Assistant Professor",
+    "affiliation": {
+      "@type": "CollegeOrUniversity",
+      "name": "Hankuk University of Foreign Studies",
+      "department": "Department of Media and Communication"
+    },
+    "url": "",
+    "sameAs": [
+      "https://scholar.google.com/citations?user=FVMBdAgAAAAJ&hl=en"
+    ]
+  }
+  </script>
 </head>
+
 <body>
-    <nav>
-        <div class="nav-container">
-            <h1 class="logo">Your Name</h1>
-            <ul class="nav-links">
-                <li><a href="#about">About</a></li>
-                <li><a href="#projects">Projects</a></li>
-                <li><a href="#skills">Skills</a></li>
-                <li><a href="#contact">Contact</a></li>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- Header / Nav -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="#top" aria-label="Homepage">
+        <span class="brand-mark" aria-hidden="true">SL</span>
+        <span class="brand-text">
+          <span class="brand-title">Sanguk Lee Lab</span>
+          <span class="brand-subtitle">Media & Communication · HUFS</span>
+        </span>
+      </a>
+
+      <button class="nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="nav-menu">
+        <span class="nav-toggle-bar" aria-hidden="true"></span>
+        <span class="nav-toggle-bar" aria-hidden="true"></span>
+        <span class="nav-toggle-bar" aria-hidden="true"></span>
+      </button>
+
+      <nav class="nav" id="nav-menu">
+        <ul class="nav-links">
+          <li><a href="#about">About</a></li>
+          <li><a href="#research">Research</a></li>
+          <li><a href="#publications">Publications</a></li>
+          <li><a href="#lab">Lab</a></li>
+          <li><a href="#join">Join Us</a></li>
+          <li><a href="#news">News</a></li>
+          <li><a class="nav-cta" href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- Hero -->
+    <section class="hero" id="top">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <p class="hero-kicker">Assistant Professor · Department of Media and Communication · HUFS</p>
+          <h1 class="hero-title">
+            Research on <span class="accent">AI & Society</span>, Computational Social Science,
+            and Science Communication
+          </h1>
+          <p class="hero-lead">
+            I study how emerging technologies shape media, public opinion, and everyday life, using computational methods and theory-driven inquiry.
+            I am building a research group and actively recruiting motivated students.
+          </p>
+
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#join">Recruiting Students</a>
+            <a class="btn btn-secondary" href="https://scholar.google.com/citations?user=FVMBdAgAAAAJ&hl=en" target="_blank" rel="noopener">
+              Google Scholar
+            </a>
+          </div>
+
+          <ul class="hero-tags" aria-label="Research keywords">
+            <li>AI & Media</li>
+            <li>Computational Methods</li>
+            <li>Public Opinion</li>
+            <li>Science Communication</li>
+            <li>Social Support & Platforms</li>
+          </ul>
+        </div>
+
+        <div class="hero-card">
+          <div class="profile">
+            <!-- Replace with your real photo -->
+            <img class="profile-photo" src="images/profile.jpg" alt="Portrait of Sanguk Lee" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';" />
+            <div class="profile-fallback" aria-hidden="true" style="display:none;">SL</div>
+
+            <div class="profile-meta">
+              <h2 class="profile-name">Sanguk Lee, Ph.D.</h2>
+              <p class="profile-role">Assistant Professor</p>
+              <p class="profile-affil">Hankuk University of Foreign Studies (HUFS)</p>
+
+              <div class="profile-links">
+                <!-- Replace placeholders -->
+                <a href="#contact" class="chip">Email</a>
+                <a href="https://scholar.google.com/citations?user=FVMBdAgAAAAJ&hl=en" target="_blank" rel="noopener" class="chip">Scholar</a>
+                <a href="#" class="chip" target="_blank" rel="noopener">CV (PDF)</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="quick-stats" role="list" aria-label="Highlights">
+            <div class="stat" role="listitem">
+              <div class="stat-label">Focus</div>
+              <div class="stat-value">Theory + Computation</div>
+            </div>
+            <div class="stat" role="listitem">
+              <div class="stat-label">Methods</div>
+              <div class="stat-value">NLP · ML · Experiments</div>
+            </div>
+            <div class="stat" role="listitem">
+              <div class="stat-label">Openings</div>
+              <div class="stat-value">UG · MA · PhD · RA</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- About -->
+    <section class="section" id="about">
+      <div class="container">
+        <div class="section-head">
+          <h2>About</h2>
+          <p>
+            Short, clear positioning statement. Replace the text below with a 5–7 sentence bio written for prospective students and collaborators.
+          </p>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <h3>Bio</h3>
+            <p>
+              I am an Assistant Professor in the Department of Media and Communication at Hankuk University of Foreign Studies (HUFS).
+              My work examines the social implications of artificial intelligence and digital media, combining communication theory with computational approaches.
+            </p>
+            <p>
+              I welcome students interested in rigorous research, transparent methods, and projects with real-world relevance.
+            </p>
+          </div>
+
+          <div class="card">
+            <h3>What we value</h3>
+            <ul class="bullets">
+              <li><strong>Clarity:</strong> research questions that are precise and falsifiable.</li>
+              <li><strong>Transparency:</strong> reproducible workflows and careful documentation.</li>
+              <li><strong>Impact:</strong> work that speaks to core scholarly debates and societal needs.</li>
+              <li><strong>Mentorship:</strong> structured guidance and collaborative problem solving.</li>
             </ul>
+          </div>
         </div>
-    </nav>
-
-    <section id="hero">
-        <div class="hero-content">
-            <img src="images/profile.jpg" alt="Your Photo" class="profile-photo">
-            <h1>Hi, I'm <span class="highlight">Your Name</span></h1>
-            <p class="tagline">Web Developer | Designer | Creative Thinker</p>
-            <a href="#contact" class="cta-button">Get In Touch</a>
-        </div>
+      </div>
     </section>
 
-    <section id="about">
-        <div class="container">
-            <h2>About Me</h2>
-            <div class="about-content">
-                <div class="about-text">
-                    <p>Welcome to my portfolio! I'm passionate about creating beautiful and functional web experiences.</p>
-                    <p>Replace this text with your own story, background, and what makes you unique. Talk about your journey, interests, and what drives you.</p>
-                </div>
+    <!-- Research -->
+    <section class="section section-alt" id="research">
+      <div class="container">
+        <div class="section-head">
+          <h2>Research</h2>
+          <p>Define 3–5 research themes. Each card should be concrete: question, data, method, and what a student would do.</p>
+        </div>
+
+        <div class="grid-3">
+          <article class="card">
+            <h3>AI, Media, and Public Judgment</h3>
+            <p>
+              How people interpret and rely on AI systems in media and everyday decision-making (trust, persuasion, social desirability, algorithmic cues).
+            </p>
+            <p class="muted">Methods: experiments, surveys, causal inference.</p>
+          </article>
+
+          <article class="card">
+            <h3>Computational Social Science</h3>
+            <p>
+              Large-scale text analysis of news and social media to measure narratives, attention cycles, and event-driven dynamics.
+            </p>
+            <p class="muted">Methods: NLP, topic modeling, time-series, ITS.</p>
+          </article>
+
+          <article class="card">
+            <h3>Science & Climate Communication</h3>
+            <p>
+              Media coverage patterns, public engagement, and how technology can personalize climate information without sacrificing accuracy.
+            </p>
+            <p class="muted">Methods: content analysis, computational measurement, mixed methods.</p>
+          </article>
+        </div>
+
+        <div class="callout">
+          <div>
+            <h3>Looking for a project?</h3>
+            <p class="muted">If you share your interests and background, I can propose 2–3 concrete starter projects (UG/MA/PhD level).</p>
+          </div>
+          <a class="btn btn-secondary" href="#join">See opportunities</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Publications -->
+    <section class="section" id="publications">
+      <div class="container">
+        <div class="section-head">
+          <h2>Publications</h2>
+          <p>
+            Keep this section curated: 4–8 “Selected” items + a link to the full list on Google Scholar.
+          </p>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <h3>Selected publications</h3>
+
+            <!-- Replace with real items -->
+            <ol class="pub-list">
+              <li>
+                <span class="pub-title">Paper title goes here</span>
+                <span class="pub-meta">Journal / Conference · Year</span>
+                <span class="pub-links">
+                  <a href="#" target="_blank" rel="noopener">PDF</a>
+                  <a href="#" target="_blank" rel="noopener">DOI</a>
+                </span>
+              </li>
+              <li>
+                <span class="pub-title">Paper title goes here</span>
+                <span class="pub-meta">Journal / Conference · Year</span>
+                <span class="pub-links">
+                  <a href="#" target="_blank" rel="noopener">PDF</a>
+                </span>
+              </li>
+              <li>
+                <span class="pub-title">Paper title goes here</span>
+                <span class="pub-meta">Journal / Conference · Year</span>
+                <span class="pub-links">
+                  <a href="#" target="_blank" rel="noopener">Project</a>
+                </span>
+              </li>
+            </ol>
+
+            <div class="inline-actions">
+              <a class="btn btn-secondary" href="https://scholar.google.com/citations?user=FVMBdAgAAAAJ&hl=en" target="_blank" rel="noopener">
+                View full list on Google Scholar
+              </a>
             </div>
+          </div>
+
+          <div class="card">
+            <h3>For students</h3>
+            <p>
+              If you want to join the lab, you do not need prior publications. What matters is strong fundamentals and a willingness to learn.
+            </p>
+            <ul class="bullets">
+              <li>Comfort with reading academic papers (or a plan to build it quickly)</li>
+              <li>Basic stats/programming helps (R/Python), but not mandatory for undergraduates</li>
+              <li>Clear communication and consistent weekly progress</li>
+            </ul>
+            <p class="muted">
+              Tip: include a short writing sample or a project (class paper, code repo, or research note).
+            </p>
+          </div>
         </div>
+      </div>
     </section>
 
-    <section id="projects">
-        <div class="container">
-            <h2>My Projects</h2>
-            <div class="projects-grid">
-                <div class="project-card">
-                    <img src="images/project1.jpg" alt="Project 1">
-                    <div class="project-info">
-                        <h3>Project Title 1</h3>
-                        <p>Brief description of your project. What did you build and what technologies did you use?</p>
-                        <a href="#" class="project-link">View Project →</a>
-                    </div>
-                </div>
-                <div class="project-card">
-                    <img src="images/project2.jpg" alt="Project 2">
-                    <div class="project-info">
-                        <h3>Project Title 2</h3>
-                        <p>Brief description of your project. What did you build and what technologies did you use?</p>
-                        <a href="#" class="project-link">View Project →</a>
-                    </div>
-                </div>
-                <div class="project-card">
-                    <img src="images/project3.jpg" alt="Project 3">
-                    <div class="project-info">
-                        <h3>Project Title 3</h3>
-                        <p>Brief description of your project. What did you build and what technologies did you use?</p>
-                        <a href="#" class="project-link">View Project →</a>
-                    </div>
-                </div>
+    <!-- Lab / People -->
+    <section class="section section-alt" id="lab">
+      <div class="container">
+        <div class="section-head">
+          <h2>Lab</h2>
+          <p>Show people (even if small at first), collaboration norms, and ongoing work.</p>
+        </div>
+
+        <div class="grid-3">
+          <article class="person card">
+            <div class="avatar" aria-hidden="true">SL</div>
+            <div>
+              <h3 class="person-name">Sanguk Lee</h3>
+              <p class="person-role">Principal Investigator</p>
+              <p class="muted">AI & media, computational social science, science communication</p>
+              <div class="person-links">
+                <a href="https://scholar.google.com/citations?user=FVMBdAgAAAAJ&hl=en" target="_blank" rel="noopener">Scholar</a>
+                <a href="#" target="_blank" rel="noopener">CV</a>
+              </div>
             </div>
-        </div>
-    </section>
+          </article>
 
-    <section id="skills">
-        <div class="container">
-            <h2>Skills</h2>
-            <div class="skills-grid">
-                <div class="skill-item">
-                    <h3>Web Development</h3>
-                    <p>HTML, CSS, JavaScript</p>
-                </div>
-                <div class="skill-item">
-                    <h3>Frameworks</h3>
-                    <p>React, Node.js, Express</p>
-                </div>
-                <div class="skill-item">
-                    <h3>Design</h3>
-                    <p>Figma, Adobe XD, UI/UX</p>
-                </div>
-                <div class="skill-item">
-                    <h3>Tools</h3>
-                    <p>Git, VS Code, GitHub</p>
-                </div>
+          <article class="person card">
+            <div class="avatar" aria-hidden="true">?</div>
+            <div>
+              <h3 class="person-name">Open Position</h3>
+              <p class="person-role">Graduate Researcher</p>
+              <p class="muted">Topic: LLMs, persuasion, social desirability, or computational content analysis</p>
+              <div class="person-links">
+                <a href="#join">Apply</a>
+              </div>
             </div>
-        </div>
-    </section>
+          </article>
 
-    <section id="contact">
-        <div class="container">
-            <h2>Get In Touch</h2>
-            <p class="contact-intro">I'd love to hear from you! Feel free to reach out.</p>
-            <div class="contact-links">
-                <a href="mailto:your.email@example.com" class="contact-button">Email Me</a>
-                <a href="https://github.com/yourusername" class="contact-button">GitHub</a>
-                <a href="https://linkedin.com/in/yourusername" class="contact-button">LinkedIn</a>
+          <article class="person card">
+            <div class="avatar" aria-hidden="true">?</div>
+            <div>
+              <h3 class="person-name">Open Position</h3>
+              <p class="person-role">Undergraduate RA</p>
+              <p class="muted">Data collection/cleaning, literature review, basic NLP experiments</p>
+              <div class="person-links">
+                <a href="#join">Apply</a>
+              </div>
             </div>
+          </article>
         </div>
+      </div>
     </section>
 
-    <footer>
-        <p>&copy; 2024 Your Name. All rights reserved.</p>
+    <!-- Join Us -->
+    <section class="section" id="join">
+      <div class="container">
+        <div class="section-head">
+          <h2>Join Us</h2>
+          <p>This section should be explicit: who you are recruiting, what you expect, and how to apply.</p>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <h3>Open roles</h3>
+            <div class="role">
+              <h4>Undergraduate Research Assistant</h4>
+              <p class="muted">Minimum: 6–8 hours/week for one semester. Curiosity and reliability matter most.</p>
+            </div>
+            <div class="role">
+              <h4>Master’s / PhD Students</h4>
+              <p class="muted">Strong fit if you want to publish and build computational skills grounded in communication theory.</p>
+            </div>
+            <div class="role">
+              <h4>Visiting / Collaboration</h4>
+              <p class="muted">If you have a dataset or a clear project idea, feel free to reach out.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>How to apply</h3>
+            <ol class="steps">
+              <li><strong>Email me</strong> with subject: <span class="mono">[Lab Inquiry] Your Name – Role (UG/MA/PhD)</span></li>
+              <li>Attach <strong>CV</strong> (and transcript if available for students)</li>
+              <li>Include a <strong>short paragraph</strong> about your interests and why you fit</li>
+              <li>Optional but helpful: writing sample, GitHub, or a short project summary</li>
+            </ol>
+            <div class="inline-actions">
+              <a class="btn btn-primary" href="#contact">Contact</a>
+              <a class="btn btn-secondary" href="#research">Research themes</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="notice">
+          <strong>Note:</strong> If you are unsure which role fits, email me anyway. I will suggest a realistic entry path.
+        </div>
+      </div>
+    </section>
+
+    <!-- News -->
+    <section class="section section-alt" id="news">
+      <div class="container">
+        <div class="section-head">
+          <h2>News</h2>
+          <p>Use short, dated items. This makes the page feel alive and credible.</p>
+        </div>
+
+        <div class="card">
+          <ul class="news-list">
+            <li>
+              <span class="news-date">2026-01</span>
+              <span class="news-text">Recruiting RAs for projects on AI-mediated persuasion and large-scale media analysis.</span>
+            </li>
+            <li>
+              <span class="news-date">2025-12</span>
+              <span class="news-text">New lab website launched. More updates coming soon.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section class="section" id="contact">
+      <div class="container">
+        <div class="section-head">
+          <h2>Contact</h2>
+          <p>Replace placeholders with your official university email and office location.</p>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <h3>Email</h3>
+            <p class="big">
+              <a href="mailto:your.email@hufs.ac.kr">your.email@hufs.ac.kr</a>
+            </p>
+            <p class="muted">
+              For prospective students, please include your role of interest (UG/MA/PhD) and a short description of your interests.
+            </p>
+
+            <div class="social">
+              <a class="chip" href="https://scholar.google.com/citations?user=FVMBdAgAAAAJ&hl=en" target="_blank" rel="noopener">Google Scholar</a>
+              <a class="chip" href="#" target="_blank" rel="noopener">Website</a>
+              <a class="chip" href="#" target="_blank" rel="noopener">GitHub</a>
+              <a class="chip" href="#" target="_blank" rel="noopener">LinkedIn</a>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Office</h3>
+            <p>
+              Department of Media and Communication<br />
+              Hankuk University of Foreign Studies (HUFS)<br />
+              Seoul, Republic of Korea
+            </p>
+            <p class="muted">
+              (Optional) Add building/room and office hours.
+            </p>
+
+            <!-- Optional map embed: add later if you want -->
+            <!-- <div class="map-embed">Map</div> -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <p>© <span id="year"></span> Sanguk Lee Lab. All rights reserved.</p>
+        <p class="muted">Last updated: <span id="lastUpdated"></span></p>
+      </div>
     </footer>
+  </main>
+
+  <script>
+    // Mobile nav toggle
+    const btn = document.querySelector(".nav-toggle");
+    const nav = document.getElementById("nav-menu");
+
+    btn?.addEventListener("click", () => {
+      const expanded = btn.getAttribute("aria-expanded") === "true";
+      btn.setAttribute("aria-expanded", String(!expanded));
+      nav.classList.toggle("nav-open");
+    });
+
+    // Close menu when clicking a link (mobile)
+    document.querySelectorAll(".nav-links a").forEach(a => {
+      a.addEventListener("click", () => {
+        if (nav.classList.contains("nav-open")) {
+          nav.classList.remove("nav-open");
+          btn.setAttribute("aria-expanded", "false");
+        }
+      });
+    });
+
+    // Footer dates
+    document.getElementById("year").textContent = new Date().getFullYear();
+    document.getElementById("lastUpdated").textContent = new Date(document.lastModified).toLocaleDateString();
+  </script>
 </body>
 </html>
