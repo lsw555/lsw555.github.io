@@ -1,0 +1,1199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Binary Particle Research Animation</title>
+  <style>
+    :root {
+      --bg-1: #040b12;
+      --bg-2: #091522;
+      --bg-3: #102335;
+      --grid: rgba(117, 210, 226, 0.09);
+      --line: rgba(117, 210, 226, 0.15);
+      --text: #edf6fb;
+      --muted: #8fa4b5;
+      --accent: #7ee8f0;
+      --accent-soft: #96c6ff;
+      --mono: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      --serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+      --sans: Inter, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      overflow: hidden;
+      color: var(--text);
+      font-family: var(--sans);
+      background:
+        radial-gradient(circle at 18% 24%, rgba(126, 232, 240, 0.13), transparent 26%),
+        radial-gradient(circle at 78% 16%, rgba(150, 198, 255, 0.11), transparent 24%),
+        linear-gradient(155deg, var(--bg-1) 0%, var(--bg-2) 48%, var(--bg-3) 100%);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+      background-size: 40px 40px;
+      mask-image: radial-gradient(circle at center, black 48%, transparent 100%);
+      pointer-events: none;
+    }
+
+    .shell {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(300px, 430px) minmax(460px, 1fr);
+      gap: 44px;
+      align-items: center;
+      width: min(1240px, calc(100% - 64px));
+      min-height: 100%;
+      margin: 0 auto;
+      padding: 44px 0;
+    }
+
+    .copy {
+      align-self: stretch;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 18px 0;
+    }
+
+    .eyebrow {
+      margin: 0 0 18px;
+      color: var(--accent);
+      font: 700 0.72rem/1 var(--mono);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0 0 20px;
+      font: 500 clamp(2.8rem, 5vw, 5rem)/0.98 var(--serif);
+      letter-spacing: -0.055em;
+    }
+
+    .copy p {
+      max-width: 39ch;
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.02rem;
+      line-height: 1.75;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 28px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .legend li {
+      padding: 8px 12px;
+      border: 1px solid rgba(126, 232, 240, 0.16);
+      color: #bfd2de;
+      font: 600 0.72rem/1 var(--mono);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(8, 18, 28, 0.5);
+      backdrop-filter: blur(8px);
+    }
+
+    .stage {
+      position: relative;
+      min-height: 540px;
+      height: min(78vh, 780px);
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background:
+        radial-gradient(circle at 50% 50%, rgba(126, 232, 240, 0.08), transparent 42%),
+        linear-gradient(180deg, rgba(12, 22, 32, 0.84), rgba(5, 11, 18, 0.92));
+      box-shadow:
+        0 24px 64px rgba(0, 0, 0, 0.44),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+
+    .stage::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(rgba(150, 198, 255, 0.035), transparent 18%, transparent 82%, rgba(126, 232, 240, 0.035)),
+        radial-gradient(circle at center, rgba(126, 232, 240, 0.08), transparent 46%);
+      pointer-events: none;
+    }
+
+    canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .hud {
+      position: absolute;
+      inset: 22px 24px auto 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .hud p {
+      margin: 0;
+    }
+
+    .label {
+      color: #d8e7f0;
+      font: 700 0.72rem/1 var(--mono);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .state {
+      margin-top: 7px;
+      color: var(--accent);
+      font: 700 0.86rem/1 var(--mono);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      transition: opacity 220ms ease;
+    }
+
+    .notes {
+      text-align: right;
+      color: var(--muted);
+      font: 600 0.66rem/1.5 var(--mono);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .footer-note {
+      position: absolute;
+      right: 24px;
+      bottom: 22px;
+      color: rgba(191, 210, 222, 0.76);
+      font: 500 0.72rem/1.45 var(--mono);
+      letter-spacing: 0.07em;
+      text-align: right;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .state-controls {
+      position: absolute;
+      left: 24px;
+      bottom: 22px;
+      z-index: 3;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .state-button {
+      appearance: none;
+      border: 1px solid rgba(126, 232, 240, 0.18);
+      background: rgba(7, 16, 24, 0.72);
+      color: #c5d7e2;
+      padding: 10px 12px;
+      border-radius: 999px;
+      font: 600 0.7rem/1 var(--mono);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 180ms ease, border-color 180ms ease, color 180ms ease, transform 180ms ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .state-button:hover {
+      border-color: rgba(126, 232, 240, 0.36);
+      color: var(--text);
+      transform: translateY(-1px);
+    }
+
+    .state-button.is-active {
+      border-color: rgba(126, 232, 240, 0.42);
+      background: rgba(65, 163, 198, 0.18);
+      color: #effbff;
+      box-shadow: inset 0 0 0 1px rgba(126, 232, 240, 0.14);
+    }
+
+    @media (max-width: 980px) {
+      body {
+        overflow: auto;
+      }
+
+      .shell {
+        grid-template-columns: 1fr;
+        gap: 28px;
+        width: min(100% - 36px, 860px);
+        padding: 28px 0 40px;
+      }
+
+      .copy p {
+        max-width: none;
+      }
+
+      .stage {
+        min-height: 420px;
+        height: min(70vh, 620px);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .state {
+        transition: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="copy" aria-labelledby="main-title">
+      <p class="eyebrow">Binary Text Particle Animation</p>
+      <h1 id="main-title">AI, climate change, and computational networks rendered with only <code>0</code> and <code>1</code>.</h1>
+      <p>
+        This demo uses binary glyphs as particles and morphs them through three
+        research motifs in a calm continuous loop. The motion, glow, and geometry
+        are tuned for a professional academic presentation rather than a playful
+        or cartoon style.
+      </p>
+      <ul class="legend" aria-label="Animation states">
+        <li>AI profile</li>
+        <li>Earth</li>
+        <li>Network graph</li>
+      </ul>
+    </section>
+
+    <section class="stage" aria-labelledby="state-label animation-description">
+      <div class="hud">
+        <div>
+          <p class="label">Particle System</p>
+          <p id="state-label" class="state">AI &amp; Society</p>
+        </div>
+        <div class="notes">
+          <p>Canvas only</p>
+          <p>0 / 1 particles</p>
+          <p>requestAnimationFrame</p>
+        </div>
+      </div>
+
+      <canvas id="particle-canvas" aria-hidden="true"></canvas>
+      <div class="state-controls" aria-label="Animation state controls">
+        <button class="state-button is-active" type="button" data-state="0">AI</button>
+        <button class="state-button" type="button" data-state="1">Earth</button>
+        <button class="state-button" type="button" data-state="2">Network</button>
+      </div>
+      <p id="animation-description" class="footer-note">Binary particles morph across three research motifs with layered depth and restrained motion.</p>
+    </section>
+  </main>
+
+  <script>
+    // Canvas-based binary particle morphing using only the characters 0 and 1.
+    (() => {
+      const canvas = document.getElementById("particle-canvas");
+      const stateLabel = document.getElementById("state-label");
+      const footerNote = document.getElementById("animation-description");
+      const stateButtons = Array.from(document.querySelectorAll(".state-button"));
+      if (!canvas || !stateLabel || !footerNote) return;
+
+      const ctx = canvas.getContext("2d");
+      const maskCanvas = document.createElement("canvas");
+      const maskCtx = maskCanvas.getContext("2d", { willReadFrequently: true });
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      const palette = {
+        white: "#edf8ff",
+        ice: "#c8f5ff",
+        cyan: "#78eaf3",
+        teal: "#43c8dc",
+        blue: "#79bbff",
+        green: "#9fe870"
+      };
+
+      const states = [
+        {
+          name: "AI & Society",
+          note: "Circuit-profile silhouette with a binary field and internal trace structure.",
+          maxPoints: 2800,
+          draw: drawAiState
+        },
+        {
+          name: "Climate Change",
+          note: "A globe centered on the Americas with atmospheric and geospatial structure.",
+          maxPoints: 3000,
+          draw: drawEarthState
+        },
+        {
+          name: "Computational Networks",
+          note: "A layered perspective network with major hubs, secondary nodes, and long-range computational links.",
+          maxPoints: 3600,
+          draw: drawNetworkState
+        }
+      ];
+
+      const particles = [];
+      let width = 0;
+      let height = 0;
+      let ratio = 1;
+      let targets = [];
+      let stateIndex = 0;
+      let animationFrame = 0;
+      let cycleTimer = 0;
+      let resizeTimer = 0;
+      let transitionStamp = 0;
+
+      function random(min, max) {
+        return min + Math.random() * (max - min);
+      }
+
+      function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+      }
+
+      function setCanvasSize() {
+        const rect = canvas.getBoundingClientRect();
+        width = rect.width;
+        height = rect.height;
+        ratio = Math.min(window.devicePixelRatio || 1, 2);
+
+        canvas.width = Math.round(width * ratio);
+        canvas.height = Math.round(height * ratio);
+        ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+
+        maskCanvas.width = Math.max(1, Math.round(width));
+        maskCanvas.height = Math.max(1, Math.round(height));
+      }
+
+      function resetMask() {
+        maskCtx.setTransform(1, 0, 0, 1, 0, 0);
+        maskCtx.clearRect(0, 0, width, height);
+        maskCtx.lineCap = "round";
+        maskCtx.lineJoin = "round";
+        maskCtx.fillStyle = "#ffffff";
+        maskCtx.strokeStyle = "#ffffff";
+      }
+
+      function collectMaskPoints(options = {}) {
+        const {
+          step = 8,
+          threshold = 20,
+          jitter = 0.6,
+          color = palette.white,
+          size = 1,
+          depth = 1,
+          charPattern = "alternate",
+          limit = Infinity
+        } = options;
+        const data = maskCtx.getImageData(0, 0, maskCanvas.width, maskCanvas.height).data;
+        const points = [];
+
+        for (let y = step; y < height - step; y += step) {
+          for (let x = step; x < width - step; x += step) {
+            const alpha = data[(Math.floor(y) * maskCanvas.width + Math.floor(x)) * 4 + 3];
+            if (alpha > threshold) {
+              const patternIndex = Math.round(x / step) + Math.round(y / step);
+              let char = "0";
+              if (charPattern === "alternate") {
+                char = patternIndex % 2 === 0 ? "0" : "1";
+              } else if (charPattern === "vertical") {
+                char = Math.round(y / step) % 2 === 0 ? "1" : "0";
+              } else if (charPattern === "horizontal") {
+                char = Math.round(x / step) % 2 === 0 ? "1" : "0";
+              } else if (charPattern === "ones") {
+                char = "1";
+              } else if (charPattern === "zeros") {
+                char = "0";
+              }
+
+              points.push({
+                x: x + random(-jitter, jitter),
+                y: y + random(-jitter, jitter),
+                color,
+                size,
+                depth,
+                char
+              });
+
+              if (points.length >= limit) {
+                return points;
+              }
+            }
+          }
+        }
+
+        return points;
+      }
+
+      function layer(draw, options) {
+        resetMask();
+        draw();
+        return collectMaskPoints(options);
+      }
+
+      function shuffle(points) {
+        for (let i = points.length - 1; i > 0; i -= 1) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [points[i], points[j]] = [points[j], points[i]];
+        }
+        return points;
+      }
+
+      function facePath(cx, cy, unit) {
+        maskCtx.beginPath();
+        maskCtx.moveTo(cx - 112 * unit, cy - 188 * unit);
+        maskCtx.bezierCurveTo(cx - 26 * unit, cy - 240 * unit, cx + 62 * unit, cy - 182 * unit, cx + 86 * unit, cy - 120 * unit);
+        maskCtx.bezierCurveTo(cx + 128 * unit, cy - 102 * unit, cx + 130 * unit, cy - 58 * unit, cx + 92 * unit, cy - 22 * unit);
+        maskCtx.bezierCurveTo(cx + 126 * unit, cy + 8 * unit, cx + 118 * unit, cy + 58 * unit, cx + 78 * unit, cy + 80 * unit);
+        maskCtx.bezierCurveTo(cx + 58 * unit, cy + 92 * unit, cx + 50 * unit, cy + 112 * unit, cx + 58 * unit, cy + 126 * unit);
+        maskCtx.bezierCurveTo(cx + 66 * unit, cy + 144 * unit, cx + 42 * unit, cy + 166 * unit, cx + 4 * unit, cy + 168 * unit);
+        maskCtx.bezierCurveTo(cx - 28 * unit, cy + 170 * unit, cx - 48 * unit, cy + 182 * unit, cx - 64 * unit, cy + 214 * unit);
+        maskCtx.bezierCurveTo(cx - 100 * unit, cy + 198 * unit, cx - 122 * unit, cy + 138 * unit, cx - 120 * unit, cy + 40 * unit);
+        maskCtx.bezierCurveTo(cx - 118 * unit, cy - 28 * unit, cx - 120 * unit, cy - 92 * unit, cx - 112 * unit, cy - 188 * unit);
+        maskCtx.closePath();
+      }
+
+      function drawAiState() {
+        const unit = Math.min(width, height) / 520;
+        const cx = width * 0.57;
+        const cy = height * 0.52;
+        const points = [];
+
+        points.push(...layer(() => {
+          maskCtx.lineWidth = 8 * unit;
+          facePath(cx, cy, unit);
+          maskCtx.stroke();
+        }, {
+          color: palette.white,
+          size: 1.18,
+          depth: 1.26,
+          step: 7,
+          jitter: 0.45,
+          charPattern: "alternate"
+        }));
+
+        points.push(...layer(() => {
+          maskCtx.save();
+          facePath(cx, cy, unit);
+          maskCtx.clip();
+
+          maskCtx.lineWidth = 3.6 * unit;
+          const xColumns = [-112, -90, -66, -42, -16, 10, 36, 62, 88];
+          const yRows = [-146, -110, -78, -42, -8, 28, 62, 98, 132];
+
+          xColumns.forEach((offset, columnIndex) => {
+            const x = cx + offset * unit;
+            maskCtx.beginPath();
+            maskCtx.moveTo(x, cy - 158 * unit);
+            maskCtx.lineTo(x, cy + 138 * unit);
+            maskCtx.stroke();
+
+            yRows.forEach((rowOffset, rowIndex) => {
+              const y = cy + rowOffset * unit;
+              const length = 18 + ((columnIndex + rowIndex) % 4) * 12;
+              maskCtx.beginPath();
+              maskCtx.moveTo(x, y);
+              maskCtx.lineTo(x + length * unit, y);
+              if ((columnIndex + rowIndex) % 3 === 0) {
+                maskCtx.lineTo(x + length * unit, y + 18 * unit);
+              }
+              maskCtx.stroke();
+
+              maskCtx.beginPath();
+              maskCtx.arc(x + length * unit, y, 4.8 * unit, 0, Math.PI * 2);
+              maskCtx.fill();
+            });
+          });
+
+          for (let d = -98; d <= 72; d += 34) {
+            maskCtx.beginPath();
+            maskCtx.moveTo(cx - 90 * unit, cy + d * unit);
+            maskCtx.lineTo(cx + 60 * unit, cy + (d - 18) * unit);
+            maskCtx.stroke();
+          }
+
+          maskCtx.restore();
+        }, {
+          color: palette.cyan,
+          size: 0.98,
+          depth: 1.1,
+          step: 8,
+          jitter: 0.35,
+          charPattern: "vertical"
+        }));
+
+        points.push(...layer(() => {
+          maskCtx.save();
+          maskCtx.font = `${Math.max(14, 16 * unit)}px ${getComputedStyle(document.documentElement).getPropertyValue("--mono")}`;
+          maskCtx.textAlign = "center";
+          maskCtx.textBaseline = "middle";
+
+          for (let x = cx - 250 * unit; x < cx - 56 * unit; x += 14 * unit) {
+            for (let y = cy - 182 * unit; y < cy + 186 * unit; y += 15 * unit) {
+              const taper = clamp((cx - 56 * unit - x) / (194 * unit), 0, 1);
+              if (Math.random() < 0.16 + taper * 0.66) {
+                maskCtx.globalAlpha = 0.28 + taper * 0.72;
+                maskCtx.fillText((Math.round((x * 0.2 + y * 0.3) / (10 * unit)) % 2 === 0) ? "0" : "1", x, y);
+              }
+            }
+          }
+
+          maskCtx.restore();
+        }, {
+          color: palette.teal,
+          size: 0.88,
+          depth: 0.84,
+          step: 9,
+          jitter: 0.55,
+          charPattern: "alternate"
+        }));
+
+        points.push(...layer(() => {
+          maskCtx.beginPath();
+          maskCtx.moveTo(cx - 84 * unit, cy + 176 * unit);
+          maskCtx.lineTo(cx - 30 * unit, cy + 118 * unit);
+          maskCtx.lineTo(cx + 2 * unit, cy + 118 * unit);
+          maskCtx.lineTo(cx - 26 * unit, cy + 206 * unit);
+          maskCtx.closePath();
+          maskCtx.fill();
+        }, {
+          color: palette.blue,
+          size: 0.92,
+          depth: 0.95,
+          step: 9,
+          jitter: 0.4,
+          charPattern: "horizontal"
+        }));
+
+        return points;
+      }
+
+      function drawAmericas(cx, cy, radius) {
+        maskCtx.beginPath();
+        maskCtx.moveTo(cx - radius * 0.56, cy - radius * 0.46);
+        maskCtx.bezierCurveTo(cx - radius * 0.52, cy - radius * 0.7, cx - radius * 0.23, cy - radius * 0.72, cx - radius * 0.08, cy - radius * 0.5);
+        maskCtx.bezierCurveTo(cx + radius * 0.03, cy - radius * 0.36, cx + radius * 0.04, cy - radius * 0.18, cx - radius * 0.1, cy - radius * 0.08);
+        maskCtx.bezierCurveTo(cx - radius * 0.18, cy - radius * 0.02, cx - radius * 0.16, cy + radius * 0.08, cx - radius * 0.08, cy + radius * 0.14);
+        maskCtx.bezierCurveTo(cx - radius * 0.02, cy + radius * 0.18, cx - radius * 0.02, cy + radius * 0.28, cx - radius * 0.08, cy + radius * 0.42);
+        maskCtx.bezierCurveTo(cx - radius * 0.12, cy + radius * 0.5, cx - radius * 0.02, cy + radius * 0.64, cx + radius * 0.02, cy + radius * 0.56);
+        maskCtx.bezierCurveTo(cx + radius * 0.06, cy + radius * 0.48, cx + radius * 0.04, cy + radius * 0.34, cx + radius * 0.14, cy + radius * 0.2);
+        maskCtx.bezierCurveTo(cx + radius * 0.2, cy + radius * 0.1, cx + radius * 0.15, cy - radius * 0.04, cx + radius * 0.08, cy - radius * 0.12);
+        maskCtx.bezierCurveTo(cx, cy - radius * 0.22, cx - radius * 0.02, cy - radius * 0.32, cx + radius * 0.02, cy - radius * 0.4);
+        maskCtx.bezierCurveTo(cx + radius * 0.06, cy - radius * 0.48, cx - radius * 0.04, cy - radius * 0.58, cx - radius * 0.18, cy - radius * 0.6);
+        maskCtx.bezierCurveTo(cx - radius * 0.28, cy - radius * 0.62, cx - radius * 0.42, cy - radius * 0.56, cx - radius * 0.56, cy - radius * 0.46);
+        maskCtx.closePath();
+
+        maskCtx.moveTo(cx - radius * 0.68, cy - radius * 0.18);
+        maskCtx.bezierCurveTo(cx - radius * 0.64, cy - radius * 0.32, cx - radius * 0.54, cy - radius * 0.36, cx - radius * 0.46, cy - radius * 0.28);
+        maskCtx.bezierCurveTo(cx - radius * 0.38, cy - radius * 0.18, cx - radius * 0.44, cy - radius * 0.06, cx - radius * 0.56, cy - radius * 0.02);
+        maskCtx.bezierCurveTo(cx - radius * 0.68, cy + radius * 0.02, cx - radius * 0.72, cy - radius * 0.08, cx - radius * 0.68, cy - radius * 0.18);
+        maskCtx.closePath();
+      }
+
+      function drawEarthState() {
+        const radius = Math.min(width, height) * 0.29;
+        const cx = width * 0.52;
+        const cy = height * 0.5;
+        const points = [];
+
+        points.push(...layer(() => {
+          maskCtx.beginPath();
+          maskCtx.arc(cx, cy, radius * 0.98, 0, Math.PI * 2);
+          maskCtx.fill();
+        }, {
+          color: palette.blue,
+          size: 0.9,
+          depth: 0.9,
+          step: 10,
+          jitter: 0.45,
+          charPattern: "alternate"
+        }));
+
+        points.push(...layer(() => {
+          maskCtx.lineWidth = Math.max(7, radius * 0.06);
+          maskCtx.beginPath();
+          maskCtx.arc(cx, cy, radius, 0, Math.PI * 2);
+          maskCtx.stroke();
+
+          maskCtx.lineWidth = Math.max(3.5, radius * 0.026);
+          for (let i = -2; i <= 2; i += 1) {
+            maskCtx.beginPath();
+            maskCtx.ellipse(cx, cy + i * radius * 0.18, radius * Math.cos(i * 0.28), radius * 0.2, 0, 0, Math.PI * 2);
+            maskCtx.stroke();
+          }
+          for (let i = -2; i <= 2; i += 1) {
+            maskCtx.beginPath();
+            maskCtx.ellipse(cx, cy, radius * (0.24 + Math.abs(i) * 0.14), radius, 0, 0, Math.PI * 2);
+            maskCtx.stroke();
+          }
+        }, {
+          color: palette.white,
+          size: 1.08,
+          depth: 1.18,
+          step: 8,
+          jitter: 0.4,
+          charPattern: "vertical"
+        }));
+
+        points.push(...layer(() => {
+          maskCtx.save();
+          maskCtx.beginPath();
+          maskCtx.arc(cx, cy, radius * 0.96, 0, Math.PI * 2);
+          maskCtx.clip();
+          drawAmericas(cx, cy, radius);
+          maskCtx.fill();
+          maskCtx.restore();
+        }, {
+          color: palette.green,
+          size: 0.96,
+          depth: 1,
+          step: 8,
+          jitter: 0.5,
+          charPattern: "horizontal"
+        }));
+
+        points.push(...layer(() => {
+          maskCtx.lineWidth = Math.max(5, radius * 0.032);
+          maskCtx.beginPath();
+          maskCtx.arc(cx - radius * 0.5, cy - radius * 0.44, radius * 0.18, 0.9, 3.6);
+          maskCtx.arc(cx - radius * 0.74, cy - radius * 0.1, radius * 0.15, 3.9, 6);
+          maskCtx.arc(cx + radius * 0.34, cy - radius * 0.72, radius * 0.18, 1.2, 3.1);
+          maskCtx.arc(cx + radius * 0.66, cy + radius * 0.48, radius * 0.22, 3.5, 5.5);
+          maskCtx.stroke();
+        }, {
+          color: palette.ice,
+          size: 0.86,
+          depth: 0.84,
+          step: 10,
+          jitter: 0.55,
+          charPattern: "alternate"
+        }));
+
+        return points;
+      }
+
+      function drawNetworkState() {
+        const points = [];
+        const scale = Math.min(width, height) / 760;
+        const horizonY = height * 0.22;
+        const vanishingX = width * 0.54;
+        const rowSpecs = [
+          { y: 0.2, count: 6, inset: 0.12, depth: 0.72, radius: 5.6 },
+          { y: 0.33, count: 7, inset: 0.09, depth: 0.8, radius: 6.6 },
+          { y: 0.48, count: 6, inset: 0.11, depth: 0.92, radius: 8.1 },
+          { y: 0.65, count: 7, inset: 0.08, depth: 1.05, radius: 9.4 },
+          { y: 0.82, count: 6, inset: 0.1, depth: 1.18, radius: 10.8 }
+        ];
+
+        const nodes = [];
+        rowSpecs.forEach((row, rowIndex) => {
+          const left = width * row.inset;
+          const right = width * (1 - row.inset);
+          const spacing = (right - left) / (row.count - 1);
+          for (let i = 0; i < row.count; i += 1) {
+            const x = left + spacing * i + ((rowIndex % 2 === 0 ? -1 : 1) * (i % 2) * width * 0.006);
+            const y = height * row.y + Math.sin(i * 0.9 + rowIndex * 0.6) * height * 0.01;
+            nodes.push({
+              id: `${rowIndex}-${i}`,
+              row: rowIndex,
+              index: i,
+              x,
+              y,
+              r: row.radius * scale,
+              depth: row.depth,
+              isHub: false,
+              color: palette.white,
+              charPattern: i % 2 === 0 ? "zeros" : "ones"
+            });
+          }
+        });
+
+        const hubKeys = new Set(["1-1", "1-4", "2-2", "2-4", "3-1", "3-5", "4-0", "4-3", "4-5"]);
+        nodes.forEach((node) => {
+          if (hubKeys.has(node.id)) {
+            node.isHub = true;
+            node.color = palette.cyan;
+            node.r *= node.row >= 3 ? 1.85 : 1.55;
+            node.depth += 0.08;
+          } else if (node.row >= 3) {
+            node.color = palette.ice;
+            node.r *= 1.08;
+          }
+        });
+
+        const hubs = nodes.filter((node) => node.isHub);
+        const edges = [];
+        const relayNodes = [];
+
+        function connect(a, b, major = false) {
+          if (!a || !b) return;
+          edges.push({ a, b, major });
+        }
+
+        for (let row = 0; row < rowSpecs.length; row += 1) {
+          const rowNodes = nodes.filter((node) => node.row === row);
+          for (let i = 0; i < rowNodes.length - 1; i += 1) {
+            connect(rowNodes[i], rowNodes[i + 1], row >= 2);
+          }
+        }
+
+        for (let row = 0; row < rowSpecs.length - 1; row += 1) {
+          const current = nodes.filter((node) => node.row === row);
+          const next = nodes.filter((node) => node.row === row + 1);
+          current.forEach((node, index) => {
+            connect(node, next[Math.max(0, index - (row % 2 === 0 ? 0 : 1))], node.isHub);
+            connect(node, next[Math.min(next.length - 1, index + 1)], node.isHub || row >= 2);
+          });
+        }
+
+        connect(hubs[0], hubs[2], true);
+        connect(hubs[1], hubs[3], true);
+        connect(hubs[2], hubs[4], true);
+        connect(hubs[3], hubs[5], true);
+        connect(hubs[4], hubs[7], true);
+        connect(hubs[5], hubs[8], true);
+        connect(hubs[6], hubs[7], true);
+        connect(hubs[7], hubs[8], true);
+        connect(hubs[2], hubs[7], true);
+        connect(hubs[3], hubs[7], true);
+
+        edges.forEach(({ a, b, major }, edgeIndex) => {
+          if (!major) return;
+          if (edgeIndex % 2 === 0) {
+            relayNodes.push({
+              x: a.x + (b.x - a.x) * 0.38,
+              y: a.y + (b.y - a.y) * 0.38,
+              r: 4.4 * scale,
+              color: palette.white,
+              depth: Math.min(a.depth, b.depth) - 0.08,
+              charPattern: "alternate"
+            });
+          }
+          if (edgeIndex % 3 === 0) {
+            relayNodes.push({
+              x: a.x + (b.x - a.x) * 0.7,
+              y: a.y + (b.y - a.y) * 0.7,
+              r: 3.9 * scale,
+              color: palette.blue,
+              depth: Math.min(a.depth, b.depth) - 0.12,
+              charPattern: "ones"
+            });
+          }
+        });
+
+        const satellites = [];
+        hubs.forEach((hub, hubIndex) => {
+          const spokes = hub.row >= 3 ? 6 : 5;
+          const radialBase = (hub.row >= 3 ? 62 : 48) * scale;
+          for (let i = 0; i < spokes; i += 1) {
+            const angle = -Math.PI + (Math.PI * 1.15 * i) / (spokes - 1) + hubIndex * 0.05;
+            const distance = radialBase + i * 4 * scale;
+            satellites.push({
+              x: hub.x + Math.cos(angle) * distance,
+              y: hub.y + Math.sin(angle) * distance * 0.46,
+              r: (hub.row >= 3 ? 6.4 : 5.5) * scale,
+              color: i % 3 === 0 ? palette.blue : palette.white,
+              parent: hub,
+              depth: hub.depth - 0.12,
+              charPattern: i % 2 === 0 ? "ones" : "zeros"
+            });
+          }
+        });
+
+        points.push(...layer(() => {
+          maskCtx.lineWidth = Math.max(2.4, Math.min(width, height) * 0.0048);
+          maskCtx.beginPath();
+          for (let i = 0; i < 8; i += 1) {
+            const t = i / 7;
+            const y = height * (0.9 - t * 0.58);
+            const inset = width * (0.03 + t * 0.22);
+            maskCtx.moveTo(inset, y);
+            maskCtx.lineTo(width - inset, y);
+          }
+          for (let i = 0; i < 9; i += 1) {
+            const x = width * (0.05 + i * 0.112);
+            maskCtx.moveTo(x, height * 0.94);
+            maskCtx.lineTo(vanishingX + (x - vanishingX) * 0.08, horizonY);
+          }
+          maskCtx.stroke();
+        }, {
+          color: "rgba(157, 196, 222, 0.95)",
+          size: 0.72,
+          depth: 0.66,
+          step: 11,
+          jitter: 0.3,
+          charPattern: "alternate"
+        }));
+
+        points.push(...layer(() => {
+          maskCtx.lineWidth = Math.max(2.6, Math.min(width, height) * 0.0055);
+          maskCtx.beginPath();
+          edges.filter((edge) => !edge.major).forEach(({ a, b }) => {
+            maskCtx.moveTo(a.x, a.y);
+            maskCtx.lineTo(b.x, b.y);
+          });
+          satellites.forEach((node) => {
+            maskCtx.moveTo(node.parent.x, node.parent.y);
+            maskCtx.lineTo(node.x, node.y);
+          });
+          maskCtx.stroke();
+        }, {
+          color: palette.ice,
+          size: 0.88,
+          depth: 0.9,
+          step: 8,
+          jitter: 0.35,
+          charPattern: "alternate"
+        }));
+
+        points.push(...layer(() => {
+          maskCtx.lineWidth = Math.max(3.2, Math.min(width, height) * 0.0068);
+          maskCtx.beginPath();
+          edges.filter((edge) => edge.major).forEach(({ a, b }) => {
+            maskCtx.moveTo(a.x, a.y);
+            maskCtx.lineTo(b.x, b.y);
+          });
+          maskCtx.stroke();
+        }, {
+          color: palette.cyan,
+          size: 0.96,
+          depth: 1,
+          step: 8,
+          jitter: 0.28,
+          charPattern: "vertical"
+        }));
+
+        points.push(...layer(() => {
+          hubs.forEach((hub) => {
+            maskCtx.beginPath();
+            maskCtx.arc(hub.x, hub.y, hub.r * 1.52, 0, Math.PI * 2);
+            maskCtx.stroke();
+          });
+        }, {
+          color: palette.blue,
+          size: 0.78,
+          depth: 0.84,
+          step: 10,
+          jitter: 0.22,
+          charPattern: "alternate"
+        }));
+
+        nodes.filter((node) => !node.isHub).forEach((node) => {
+          points.push(...layer(() => {
+            maskCtx.beginPath();
+            maskCtx.arc(node.x, node.y, node.r, 0, Math.PI * 2);
+            maskCtx.fill();
+          }, {
+            color: node.color,
+            size: node.row >= 3 ? 0.98 : 0.84,
+            depth: node.depth,
+            step: 8,
+            jitter: 0.24,
+            charPattern: node.charPattern
+          }));
+        });
+
+        hubs.forEach((hub) => {
+          points.push(...layer(() => {
+            maskCtx.beginPath();
+            maskCtx.arc(hub.x, hub.y, hub.r, 0, Math.PI * 2);
+            maskCtx.fill();
+          }, {
+            color: hub.color,
+            size: 1.26,
+            depth: hub.depth,
+            step: 7,
+            jitter: 0.2,
+            charPattern: "ones"
+          }));
+
+          points.push(...layer(() => {
+            maskCtx.beginPath();
+            maskCtx.arc(hub.x, hub.y, hub.r * 0.52, 0, Math.PI * 2);
+            maskCtx.fill();
+          }, {
+            color: palette.white,
+            size: 0.92,
+            depth: hub.depth + 0.04,
+            step: 8,
+            jitter: 0.16,
+            charPattern: "zeros"
+          }));
+        });
+
+        satellites.forEach((node) => {
+          points.push(...layer(() => {
+            maskCtx.beginPath();
+            maskCtx.arc(node.x, node.y, node.r, 0, Math.PI * 2);
+            maskCtx.fill();
+          }, {
+            color: node.color,
+            size: 0.92,
+            depth: node.depth,
+            step: 8,
+            jitter: 0.22,
+            charPattern: node.charPattern
+          }));
+        });
+
+        relayNodes.forEach((node) => {
+          points.push(...layer(() => {
+            maskCtx.beginPath();
+            maskCtx.arc(node.x, node.y, node.r, 0, Math.PI * 2);
+            maskCtx.fill();
+          }, {
+            color: node.color,
+            size: 0.8,
+            depth: node.depth,
+            step: 8,
+            jitter: 0.18,
+            charPattern: node.charPattern
+          }));
+        });
+
+        points.push(...layer(() => {
+          hubs.forEach((hub, index) => {
+            const rx = hub.r * (1.9 + (index % 2) * 0.24);
+            const ry = hub.r * (0.58 + (index % 3) * 0.05);
+            maskCtx.beginPath();
+            maskCtx.ellipse(hub.x, hub.y, rx, ry, 0, 0.18, Math.PI - 0.18);
+            maskCtx.stroke();
+          });
+        }, {
+          color: palette.teal,
+          size: 0.72,
+          depth: 0.86,
+          step: 11,
+          jitter: 0.18,
+          charPattern: "horizontal"
+        }));
+
+        return points;
+      }
+
+      function sampleState(index) {
+        return shuffle(states[index].draw()).slice(0, states[index].maxPoints || 3200);
+      }
+
+      function ensureParticleCount(count) {
+        while (particles.length < count) {
+          particles.push({
+            x: random(width * 0.16, width * 0.84),
+            y: random(height * 0.16, height * 0.84),
+            tx: width * 0.5,
+            ty: height * 0.5,
+            vx: 0,
+            vy: 0,
+            alpha: 0,
+            baseAlpha: random(0.74, 0.98),
+            depth: random(0.78, 1.18),
+            size: random(0.84, 1.08),
+            char: Math.random() > 0.5 ? "1" : "0",
+            color: palette.white,
+            active: false,
+            seed: random(0, Math.PI * 2)
+          });
+        }
+      }
+
+      function activateState(index, immediate = false) {
+        stateIndex = index;
+        transitionStamp = performance.now();
+        targets = sampleState(index);
+        ensureParticleCount(targets.length);
+
+        stateLabel.style.opacity = "0";
+        window.setTimeout(() => {
+          stateLabel.textContent = states[index].name;
+          stateLabel.style.opacity = "1";
+        }, reduceMotion ? 0 : 180);
+
+        footerNote.textContent = states[index].note;
+        stateButtons.forEach((button) => {
+          button.classList.toggle("is-active", Number(button.dataset.state) === index);
+        });
+
+        particles.forEach((particle, i) => {
+          const target = targets[i % targets.length] || {
+            x: width * 0.5,
+            y: height * 0.5,
+            color: palette.white,
+            size: 1,
+            depth: 1,
+            char: "0"
+          };
+
+          particle.tx = target.x;
+          particle.ty = target.y;
+          particle.color = target.color;
+          particle.size = target.size || 1;
+          particle.depth = target.depth || 1;
+          particle.char = target.char || (i % 2 === 0 ? "0" : "1");
+          particle.active = i < targets.length;
+
+          if (immediate) {
+            particle.x = target.x;
+            particle.y = target.y;
+            particle.vx = 0;
+            particle.vy = 0;
+            particle.alpha = particle.active ? particle.baseAlpha : 0;
+          }
+        });
+      }
+
+      function drawBackdrop(now) {
+        const gradient = ctx.createRadialGradient(width * 0.56, height * 0.5, 28, width * 0.56, height * 0.5, width * 0.56);
+        gradient.addColorStop(0, "rgba(126, 232, 240, 0.12)");
+        gradient.addColorStop(0.48, "rgba(74, 176, 255, 0.05)");
+        gradient.addColorStop(1, "rgba(126, 232, 240, 0)");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, width, height);
+        if (stateIndex === 2) {
+          const horizonY = height * 0.22;
+          const vanishingX = width * 0.54;
+          const floorGradient = ctx.createLinearGradient(0, horizonY, 0, height);
+          floorGradient.addColorStop(0, "rgba(11, 24, 34, 0)");
+          floorGradient.addColorStop(1, "rgba(24, 46, 68, 0.22)");
+          ctx.fillStyle = floorGradient;
+          ctx.fillRect(0, horizonY, width, height - horizonY);
+
+          ctx.strokeStyle = "rgba(126, 232, 240, 0.085)";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          for (let i = 0; i < 10; i += 1) {
+            const x = width * (0.04 + i * 0.102);
+            ctx.moveTo(x, height * 0.95);
+            ctx.lineTo(vanishingX + (x - vanishingX) * 0.08, horizonY);
+          }
+          for (let i = 0; i < 8; i += 1) {
+            const t = i / 7;
+            const y = height * (0.9 - t * 0.58);
+            const inset = width * (0.02 + t * 0.24);
+            ctx.moveTo(inset, y);
+            ctx.lineTo(width - inset, y);
+          }
+          ctx.stroke();
+        } else {
+          ctx.strokeStyle = "rgba(126, 232, 240, 0.06)";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          for (let i = 0; i < 4; i += 1) {
+            const y = height * (0.22 + i * 0.16);
+            ctx.moveTo(width * 0.08, y + Math.sin(now * 0.00035 + i) * 8);
+            ctx.bezierCurveTo(width * 0.34, y - 14, width * 0.64, y + 12, width * 0.92, y + Math.cos(now * 0.00028 + i) * 10);
+          }
+          ctx.stroke();
+        }
+      }
+
+      function render(now = performance.now()) {
+        ctx.clearRect(0, 0, width, height);
+        drawBackdrop(now);
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        const transitionAge = clamp((now - transitionStamp) / 2200, 0, 1);
+
+        particles.forEach((particle, index) => {
+          const spring = reduceMotion ? 1 : (0.028 + particle.depth * 0.012);
+          const damping = 0.82;
+          const driftX = reduceMotion ? 0 : Math.sin(now * 0.0013 + particle.seed) * 0.18 * particle.depth;
+          const driftY = reduceMotion ? 0 : Math.cos(now * 0.001 + particle.seed * 1.2) * 0.18 * particle.depth;
+
+          particle.vx = (particle.vx + (particle.tx + driftX - particle.x) * spring) * damping;
+          particle.vy = (particle.vy + (particle.ty + driftY - particle.y) * spring) * damping;
+          particle.x += particle.vx;
+          particle.y += particle.vy;
+
+          const desiredAlpha = particle.active ? particle.baseAlpha * (0.72 + transitionAge * 0.28) : 0;
+          particle.alpha += (desiredAlpha - particle.alpha) * 0.08;
+
+          if (particle.alpha < 0.02) return;
+
+          const twinkle = reduceMotion ? 1 : (0.92 + Math.sin(now * 0.0022 + particle.seed * 1.5) * 0.08);
+          const fontSize = clamp((width / 124) * particle.depth * particle.size, 8.5, 15.5);
+          const glyph = particle.char;
+
+          ctx.font = `700 ${fontSize}px ${getComputedStyle(document.documentElement).getPropertyValue("--mono")}`;
+          ctx.globalAlpha = particle.alpha * twinkle;
+          ctx.fillStyle = particle.color;
+          ctx.shadowBlur = 8 + particle.depth * 9;
+          ctx.shadowColor = particle.color;
+          ctx.fillText(glyph, particle.x, particle.y);
+        });
+
+        ctx.shadowBlur = 0;
+        ctx.globalAlpha = 1;
+
+        if (!reduceMotion) {
+          animationFrame = requestAnimationFrame(render);
+        }
+      }
+
+      function startCycle() {
+        if (reduceMotion) return;
+        window.clearInterval(cycleTimer);
+        cycleTimer = window.setInterval(() => {
+          activateState((stateIndex + 1) % states.length);
+        }, 6800);
+      }
+
+      function stopCycle() {
+        window.clearInterval(cycleTimer);
+        cancelAnimationFrame(animationFrame);
+      }
+
+      window.addEventListener("resize", () => {
+        window.clearTimeout(resizeTimer);
+        resizeTimer = window.setTimeout(() => {
+          setCanvasSize();
+          activateState(stateIndex, true);
+          render();
+        }, 120);
+      });
+
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+          stopCycle();
+        } else if (!reduceMotion) {
+          activateState(stateIndex, true);
+          render();
+          startCycle();
+        }
+      });
+
+      stateButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          const nextIndex = Number(button.dataset.state);
+          stopCycle();
+          activateState(nextIndex, true);
+          render();
+          startCycle();
+        });
+      });
+
+      setCanvasSize();
+      activateState(0, true);
+      render();
+      startCycle();
+    })();
+  </script>
+</body>
+</html>
