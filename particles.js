@@ -15,7 +15,11 @@
     cyan: "#147f92",
     teal: "#2d8a87",
     blue: "#386f9c",
-    green: "#557f59"
+    green: "#557f59",
+    earthOcean: "#1c6b98",
+    earthLand: "#376f4a",
+    earthCoast: "#1f4935",
+    earthAtmosphere: "#78a6b8"
   };
 
   // Quantized Google MediaPipe canonical 3D face mesh (468 vertices, 1,365 unique edges).
@@ -88,7 +92,7 @@
     },
     {
       name: "CLIMATE CHANGE COMMUNICATION",
-      maxPoints: 2800,
+      maxPoints: 3200,
       draw: drawGeographicEarthState
     },
     {
@@ -680,16 +684,16 @@
 
     earthFillPoints.forEach(([lon, lat], index) => {
       addSpherePoint(lon, lat, 1.004, {
-        color: index % 7 === 0 ? palette.ice : palette.green,
-        size: index % 7 === 0 ? 0.72 : 0.58,
+        color: index % 7 === 0 ? palette.earthCoast : palette.earthLand,
+        size: index % 7 === 0 ? 0.9 : 0.76,
         feature: "landFill"
       });
     });
 
     earthOutlinePoints.forEach(([lon, lat], index) => {
       addSpherePoint(lon, lat, 1.012, {
-        color: index % 5 === 0 ? palette.white : palette.green,
-        size: index % 5 === 0 ? 0.86 : 0.72,
+        color: palette.earthCoast,
+        size: index % 5 === 0 ? 1.04 : 0.9,
         feature: "landOutline"
       });
     });
@@ -697,7 +701,7 @@
     for (let lon = -180; lon < 180; lon += 30) {
       for (let lat = -78; lat <= 78; lat += 7) {
         addSpherePoint(lon, lat, 1, {
-          color: palette.blue,
+          color: palette.earthOcean,
           size: 0.54,
           feature: "oceanGrid"
         });
@@ -707,18 +711,30 @@
     for (let lat = -60; lat <= 60; lat += 30) {
       for (let lon = -180; lon < 180; lon += 7) {
         addSpherePoint(lon, lat, 1, {
-          color: palette.blue,
+          color: palette.earthOcean,
           size: 0.54,
           feature: "oceanGrid"
         });
       }
     }
 
+    // A quiet blue particle field makes the spherical ocean volume readable
+    // while the higher-radius green points preserve geographic boundaries.
+    for (let i = 0; i < 1600; i += 1) {
+      const lon = (i * 137.508) % 360 - 180;
+      const lat = Math.asin(-1 + (2 * i) / 1599) * 180 / Math.PI;
+      addSpherePoint(lon, lat, 0.994, {
+        color: palette.earthOcean,
+        size: 0.58,
+        feature: "oceanSurface"
+      });
+    }
+
     for (let i = 0; i < 180; i += 1) {
       const lon = (i * 137.508) % 360 - 180;
       const lat = Math.asin(-1 + (2 * i) / 179) * 180 / Math.PI;
       addSpherePoint(lon, lat, 1.055, {
-        color: palette.ice,
+        color: palette.earthAtmosphere,
         size: 0.48,
         feature: "atmosphere"
       });
@@ -1108,7 +1124,39 @@
   }
 
   function sampleState(index) {
-    return shuffle(states[index].draw()).slice(0, states[index].maxPoints || 3200);
+    const drawn = states[index].draw();
+    const limit = states[index].maxPoints || 3200;
+
+    if (index === 1) {
+      const quotas = {
+        landFill: 1100,
+        landOutline: 750,
+        oceanSurface: 930,
+        oceanGrid: 340,
+        atmosphere: 80
+      };
+      const selected = [];
+      const used = new Set();
+
+      Object.entries(quotas).forEach(([feature, quota]) => {
+        shuffle(drawn.filter((point) => point.feature === feature))
+          .slice(0, quota)
+          .forEach((point) => {
+            selected.push(point);
+            used.add(point);
+          });
+      });
+
+      if (selected.length < limit) {
+        shuffle(drawn.filter((point) => !used.has(point)))
+          .slice(0, limit - selected.length)
+          .forEach((point) => selected.push(point));
+      }
+
+      return shuffle(selected).slice(0, limit);
+    }
+
+    return shuffle(drawn).slice(0, limit);
   }
 
   function ensureParticleCount(count) {
@@ -1247,7 +1295,7 @@
           ? 1
           : clamp(0.34 + (z2 + 130) / 300, 0.26, 1);
       } else if (stateIndex === 1 && particle.model === "earthGeo") {
-        const yaw = (now - transitionStamp) * 0.00015 + 0.06;
+        const yaw = Math.sin((now - transitionStamp) * 0.00018) * 0.11;
         const pitch = -0.2;
         const cosY = Math.cos(yaw);
         const sinY = Math.sin(yaw);
@@ -1268,12 +1316,14 @@
         particle.color = particle.baseColor || palette.blue;
         if (particle.feature === "atmosphere") {
           particle.visibility = 0.12 + frontness * 0.42;
+        } else if (particle.feature === "oceanSurface") {
+          particle.visibility = frontness > 0.34 ? 0.36 + frontness * 0.54 : 0.02;
         } else if (particle.feature === "oceanGrid") {
-          particle.visibility = 0.04 + frontness * 0.52;
+          particle.visibility = frontness > 0.32 ? 0.24 + frontness * 0.5 : 0.02;
         } else if (particle.feature === "landFill") {
-          particle.visibility = frontness > 0.46 ? frontness * 0.88 : 0.015;
+          particle.visibility = frontness > 0.4 ? 0.36 + frontness * 0.64 : 0.02;
         } else {
-          particle.visibility = frontness > 0.43 ? 0.34 + frontness * 0.66 : 0.02;
+          particle.visibility = frontness > 0.38 ? 0.42 + frontness * 0.58 : 0.025;
         }
       } else if (stateIndex === 2 && particle.model === "communityNetwork") {
         const networkPhase = (now - transitionStamp) * 0.00022;
