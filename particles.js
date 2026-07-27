@@ -2,7 +2,7 @@
 (() => {
   const canvas = document.getElementById("particle-canvas");
   const stateLabel = document.getElementById("particle-heading");
-  const interactionHint = document.getElementById("particle-hint");
+  const navigationButtons = document.querySelectorAll("[data-particle-step]");
   if (!canvas || !stateLabel) return;
 
   const ctx = canvas.getContext("2d");
@@ -136,9 +136,6 @@
 
   function setDragUi(active) {
     canvas.classList.toggle("is-dragging", active);
-    if (interactionHint) {
-      interactionHint.textContent = active ? "Release to continue" : "Drag to rotate";
-    }
   }
 
   function beginDrag(event) {
@@ -155,7 +152,6 @@
     } catch (error) {
       // Synthetic pointer events used by automated checks do not own capture.
     }
-    window.clearInterval(cycleTimer);
     setDragUi(true);
   }
 
@@ -189,7 +185,6 @@
     }
     activePointerId = null;
     setDragUi(false);
-    startCycle();
   }
 
   function setCanvasSize() {
@@ -1512,6 +1507,24 @@
     window.clearInterval(cycleTimer);
     cancelAnimationFrame(animationFrame);
   }
+
+  function showAdjacentState(step) {
+    const nextIndex = (stateIndex + step + states.length) % states.length;
+    yawVelocity = 0;
+    pitchVelocity = 0;
+    activateState(nextIndex, reduceMotion);
+    if (reduceMotion) {
+      render();
+    } else {
+      startCycle();
+    }
+  }
+
+  navigationButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      showAdjacentState(button.dataset.particleStep === "-1" ? -1 : 1);
+    });
+  });
 
   canvas.addEventListener("pointerdown", (event) => {
     event.preventDefault();
