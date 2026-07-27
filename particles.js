@@ -88,12 +88,12 @@
   const states = [
     {
       name: "AI & SOCIETY",
-      maxPoints: 2400,
+      maxPoints: 1200,
       draw: drawMediaPipeAiState
     },
     {
       name: "CLIMATE CHANGE COMMUNICATION",
-      maxPoints: 3200,
+      maxPoints: 1800,
       draw: drawGeographicEarthState
     },
     {
@@ -1193,14 +1193,13 @@
     const drawn = states[index].draw();
     const limit = states[index].maxPoints || 3200;
 
-    if (index === 1) {
-      const quotas = {
-        landFill: 1100,
-        landOutline: 750,
-        oceanSurface: 930,
-        oceanGrid: 340,
-        atmosphere: 80
-      };
+    const quotas = index === 0
+      ? { faceVertex: 420, faceEdge: 749, scanner: 31 }
+      : index === 1
+        ? { landFill: 520, landOutline: 460, oceanSurface: 550, oceanGrid: 220, atmosphere: 50 }
+        : null;
+
+    if (quotas) {
       const selected = [];
       const used = new Set();
 
