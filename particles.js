@@ -2,9 +2,7 @@
 (() => {
   const canvas = document.getElementById("particle-canvas");
   const stateLabel = document.getElementById("particle-heading");
-  const footerNote = document.getElementById("particle-description");
-  const stateButtons = Array.from(document.querySelectorAll(".state-button"));
-  if (!canvas || !stateLabel || !footerNote) return;
+  if (!canvas || !stateLabel) return;
 
   const ctx = canvas.getContext("2d");
   const maskCanvas = document.createElement("canvas");
@@ -12,12 +10,12 @@
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const palette = {
-    white: "#edf8ff",
-    ice: "#c8f5ff",
-    cyan: "#78eaf3",
-    teal: "#43c8dc",
-    blue: "#79bbff",
-    green: "#9fe870"
+    white: "#183746",
+    ice: "#2d6675",
+    cyan: "#147f92",
+    teal: "#2d8a87",
+    blue: "#386f9c",
+    green: "#557f59"
   };
 
   // Quantized Google MediaPipe canonical 3D face mesh (468 vertices, 1,365 unique edges).
@@ -85,19 +83,16 @@
   const states = [
     {
       name: "AI & SOCIETY",
-      note: "Google MediaPipe's canonical 468-landmark face geometry rendered as a rotating binary 3D mesh.",
       maxPoints: 3000,
       draw: drawMediaPipeAiState
     },
     {
-      name: "CLIMATE COMMUNICATION",
-      note: "A rotating geographic globe built from Natural Earth boundaries, land samples, and an atmospheric shell.",
+      name: "CLIMATE CHANGE COMMUNICATION",
       maxPoints: 3800,
       draw: drawGeographicEarthState
     },
     {
-      name: "COMPUTATIONAL NETWORKS",
-      note: "A distributed 3D social network with seven hubs, layered local ties, and selective cross-group bridges.",
+      name: "COMPUTATIONAL METHODS",
       maxPoints: 3600,
       draw: drawCommunityNetworkState
     }
@@ -1163,11 +1158,6 @@
       stateLabel.style.opacity = "1";
     }, reduceMotion ? 0 : 180);
 
-    footerNote.textContent = states[index].note;
-    stateButtons.forEach((button) => {
-      button.classList.toggle("is-active", Number(button.dataset.state) === index);
-    });
-
     particles.forEach((particle, i) => {
       const target = targets[i % targets.length] || {
         x: width * 0.5,
@@ -1210,67 +1200,8 @@
     });
   }
 
-  function drawBackdrop(now) {
-    const gradient = ctx.createRadialGradient(width * 0.56, height * 0.5, 28, width * 0.56, height * 0.5, width * 0.56);
-    gradient.addColorStop(0, "rgba(126, 232, 240, 0.12)");
-    gradient.addColorStop(0.48, "rgba(74, 176, 255, 0.05)");
-    gradient.addColorStop(1, "rgba(126, 232, 240, 0)");
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, width, height);
-    if (stateIndex === 0) {
-      const centerX = width * 0.54;
-      const centerY = height * 0.49;
-      const frameWidth = Math.min(width, height) * 0.54;
-      const frameHeight = Math.min(width, height) * 0.78;
-      const left = centerX - frameWidth * 0.5;
-      const right = centerX + frameWidth * 0.5;
-      const top = centerY - frameHeight * 0.5;
-      const bottom = centerY + frameHeight * 0.5;
-      const corner = 28;
-
-      ctx.strokeStyle = "rgba(126, 232, 240, 0.11)";
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(left, top + corner);
-      ctx.lineTo(left, top);
-      ctx.lineTo(left + corner, top);
-      ctx.moveTo(right - corner, top);
-      ctx.lineTo(right, top);
-      ctx.lineTo(right, top + corner);
-      ctx.moveTo(left, bottom - corner);
-      ctx.lineTo(left, bottom);
-      ctx.lineTo(left + corner, bottom);
-      ctx.moveTo(right - corner, bottom);
-      ctx.lineTo(right, bottom);
-      ctx.lineTo(right, bottom - corner);
-      ctx.stroke();
-    } else if (stateIndex === 2) {
-      const centerX = width * 0.54;
-      const centerY = height * 0.49;
-      const radius = Math.min(width, height) * 0.34;
-
-      const halo = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius * 1.18);
-      halo.addColorStop(0, "rgba(126, 232, 240, 0.042)");
-      halo.addColorStop(0.58, "rgba(74, 176, 255, 0.012)");
-      halo.addColorStop(1, "rgba(126, 232, 240, 0)");
-      ctx.fillStyle = halo;
-      ctx.fillRect(centerX - radius * 1.2, centerY - radius, radius * 2.4, radius * 2);
-    } else {
-      ctx.strokeStyle = "rgba(126, 232, 240, 0.06)";
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      for (let i = 0; i < 4; i += 1) {
-        const y = height * (0.22 + i * 0.16);
-        ctx.moveTo(width * 0.08, y + Math.sin(now * 0.00035 + i) * 8);
-        ctx.bezierCurveTo(width * 0.34, y - 14, width * 0.64, y + 12, width * 0.92, y + Math.cos(now * 0.00028 + i) * 10);
-      }
-      ctx.stroke();
-    }
-  }
-
   function render(now = performance.now()) {
     ctx.clearRect(0, 0, width, height);
-    drawBackdrop(now);
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
@@ -1422,9 +1353,9 @@
       ctx.globalAlpha = particle.alpha * twinkle;
       ctx.fillStyle = particle.color;
       ctx.shadowBlur = isNetworkConnection
-        ? 1.2 + particle.depth * 1.8
+        ? 0.5 + particle.depth
         : ((isFaceMesh || isEarthGlobe || isNetworkMesh)
-          ? 3 + particle.depth * 4
+          ? 1 + particle.depth * 2
           : 8 + particle.depth * 9);
       ctx.shadowColor = particle.color;
       ctx.fillText(glyph, particle.x, particle.y);
@@ -1468,16 +1399,6 @@
       render();
       startCycle();
     }
-  });
-
-  stateButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      const nextIndex = Number(button.dataset.state);
-      stopCycle();
-      activateState(nextIndex, true);
-      render();
-      startCycle();
-    });
   });
 
   setCanvasSize();
