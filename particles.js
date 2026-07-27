@@ -175,6 +175,10 @@
 
   function endDrag(event) {
     if (!dragActive || (event && event.pointerId !== activePointerId)) return;
+    if (stateIndex === 1) {
+      yawVelocity = 0;
+      pitchVelocity = 0;
+    }
     dragActive = false;
     if (activePointerId !== null && canvas.hasPointerCapture(activePointerId)) {
       try {
@@ -1381,10 +1385,10 @@
         const z1 = particle.z3 * cosY - particle.x3 * sinY;
         const y1 = particle.y3 * cosX - z1 * sinX;
         const z2 = z1 * cosX + particle.y3 * sinX;
-        const perspective = 460 / (460 - z2);
-
-        particle.tx = particle.anchorX + x1 * perspective;
-        particle.ty = particle.anchorY + y1 * perspective;
+        // Orthographic projection keeps a spherical globe circular at every
+        // drag angle; depth is still conveyed through size and opacity.
+        particle.tx = particle.anchorX + x1;
+        particle.ty = particle.anchorY + y1;
         const frontness = clamp((z2 / particle.modelScale + 1) * 0.5, 0, 1);
         particle.depth = clamp(0.78 + frontness * 0.5, 0.72, 1.28);
         particle.size = particle.baseSize * (0.84 + frontness * 0.24);
@@ -1434,15 +1438,23 @@
         }
       }
 
-      const spring = reduceMotion ? 1 : (0.038 + particle.depth * 0.014);
-      const damping = 0.8;
-      const driftX = reduceMotion ? 0 : Math.sin(now * 0.0013 + particle.seed) * 0.18 * particle.depth;
-      const driftY = reduceMotion ? 0 : Math.cos(now * 0.001 + particle.seed * 1.2) * 0.18 * particle.depth;
+      const directEarthDrag = dragActive && stateIndex === 1 && particle.model === "earthGeo";
+      if (directEarthDrag) {
+        particle.x = particle.tx;
+        particle.y = particle.ty;
+        particle.vx = 0;
+        particle.vy = 0;
+      } else {
+        const spring = reduceMotion ? 1 : (0.038 + particle.depth * 0.014);
+        const damping = 0.8;
+        const driftX = reduceMotion ? 0 : Math.sin(now * 0.0013 + particle.seed) * 0.18 * particle.depth;
+        const driftY = reduceMotion ? 0 : Math.cos(now * 0.001 + particle.seed * 1.2) * 0.18 * particle.depth;
 
-      particle.vx = (particle.vx + (particle.tx + driftX - particle.x) * spring) * damping;
-      particle.vy = (particle.vy + (particle.ty + driftY - particle.y) * spring) * damping;
-      particle.x += particle.vx;
-      particle.y += particle.vy;
+        particle.vx = (particle.vx + (particle.tx + driftX - particle.x) * spring) * damping;
+        particle.vy = (particle.vy + (particle.ty + driftY - particle.y) * spring) * damping;
+        particle.x += particle.vx;
+        particle.y += particle.vy;
+      }
 
       const desiredAlpha = particle.active ? particle.baseAlpha * (0.72 + transitionAge * 0.28) * particle.visibility : 0;
       particle.alpha += (desiredAlpha - particle.alpha) * 0.08;
