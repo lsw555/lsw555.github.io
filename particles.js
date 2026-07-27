@@ -2,6 +2,7 @@
 (() => {
   const canvas = document.getElementById("particle-canvas");
   const stateLabel = document.getElementById("particle-heading");
+  const interactionHint = document.getElementById("particle-hint");
   if (!canvas || !stateLabel) return;
 
   const ctx = canvas.getContext("2d");
@@ -112,6 +113,14 @@
   let cycleTimer = 0;
   let resizeTimer = 0;
   let transitionStamp = 0;
+  const viewAngles = states.map(() => ({ yaw: 0, pitch: 0 }));
+  let dragActive = false;
+  let activePointerId = null;
+  let lastPointerX = 0;
+  let lastPointerY = 0;
+  let lastPointerTime = 0;
+  let yawVelocity = 0;
+  let pitchVelocity = 0;
 
   function random(min, max) {
     return min + Math.random() * (max - min);
@@ -119,6 +128,68 @@
 
   function clamp(value, min, max) {
     return Math.max(min, Math.min(max, value));
+  }
+
+  function currentView() {
+    return viewAngles[stateIndex];
+  }
+
+  function setDragUi(active) {
+    canvas.classList.toggle("is-dragging", active);
+    if (interactionHint) {
+      interactionHint.textContent = active ? "Release to continue" : "Drag to rotate";
+    }
+  }
+
+  function beginDrag(event) {
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+    dragActive = true;
+    activePointerId = event.pointerId;
+    lastPointerX = event.clientX;
+    lastPointerY = event.clientY;
+    lastPointerTime = event.timeStamp;
+    yawVelocity = 0;
+    pitchVelocity = 0;
+    try {
+      canvas.setPointerCapture(event.pointerId);
+    } catch (error) {
+      // Synthetic pointer events used by automated checks do not own capture.
+    }
+    window.clearInterval(cycleTimer);
+    setDragUi(true);
+  }
+
+  function continueDrag(event) {
+    if (!dragActive || event.pointerId !== activePointerId) return;
+    const elapsed = Math.max(8, event.timeStamp - lastPointerTime);
+    const deltaX = event.clientX - lastPointerX;
+    const deltaY = event.clientY - lastPointerY;
+    const view = currentView();
+
+    view.yaw += deltaX * 0.008;
+    view.pitch = clamp(view.pitch + deltaY * 0.006, -0.62, 0.62);
+    yawVelocity = clamp(deltaX * 0.008 * (16 / elapsed), -0.08, 0.08);
+    pitchVelocity = clamp(deltaY * 0.006 * (16 / elapsed), -0.055, 0.055);
+    lastPointerX = event.clientX;
+    lastPointerY = event.clientY;
+    lastPointerTime = event.timeStamp;
+
+    if (reduceMotion) render();
+  }
+
+  function endDrag(event) {
+    if (!dragActive || (event && event.pointerId !== activePointerId)) return;
+    dragActive = false;
+    if (activePointerId !== null && canvas.hasPointerCapture(activePointerId)) {
+      try {
+        canvas.releasePointerCapture(activePointerId);
+      } catch (error) {
+        // The pointer may already have been released by the browser.
+      }
+    }
+    activePointerId = null;
+    setDragUi(false);
+    startCycle();
   }
 
   function setCanvasSize() {
@@ -1254,11 +1325,21 @@
     ctx.textBaseline = "middle";
 
     const transitionAge = clamp((now - transitionStamp) / 2200, 0, 1);
+    const view = currentView();
+
+    if (!dragActive && !reduceMotion) {
+      view.yaw += yawVelocity;
+      view.pitch = clamp(view.pitch + pitchVelocity, -0.62, 0.62);
+      yawVelocity *= 0.92;
+      pitchVelocity *= 0.9;
+      if (Math.abs(yawVelocity) < 0.00004) yawVelocity = 0;
+      if (Math.abs(pitchVelocity) < 0.00004) pitchVelocity = 0;
+    }
 
     particles.forEach((particle, index) => {
       if (stateIndex === 0 && particle.model === "mediapipeFace") {
-        const yaw = Math.sin(now * 0.00028) * 0.42 - 0.06;
-        const pitch = Math.cos(now * 0.00019) * 0.065 - 0.02;
+        const yaw = Math.sin(now * 0.00028) * 0.42 - 0.06 + view.yaw;
+        const pitch = Math.cos(now * 0.00019) * 0.065 - 0.02 + view.pitch;
         const cosY = Math.cos(yaw);
         const sinY = Math.sin(yaw);
         const cosX = Math.cos(pitch);
@@ -1295,8 +1376,8 @@
           ? 1
           : clamp(0.34 + (z2 + 130) / 300, 0.26, 1);
       } else if (stateIndex === 1 && particle.model === "earthGeo") {
-        const yaw = Math.sin((now - transitionStamp) * 0.00018) * 0.11;
-        const pitch = -0.2;
+        const yaw = Math.sin((now - transitionStamp) * 0.00018) * 0.11 + view.yaw;
+        const pitch = -0.2 + view.pitch;
         const cosY = Math.cos(yaw);
         const sinY = Math.sin(yaw);
         const cosX = Math.cos(pitch);
@@ -1327,8 +1408,8 @@
         }
       } else if (stateIndex === 2 && particle.model === "communityNetwork") {
         const networkPhase = (now - transitionStamp) * 0.00022;
-        const yaw = Math.sin(networkPhase) * 0.34 - 0.06;
-        const pitch = -0.18 + Math.cos(networkPhase * 0.72) * 0.045;
+        const yaw = Math.sin(networkPhase) * 0.34 - 0.06 + view.yaw;
+        const pitch = -0.18 + Math.cos(networkPhase * 0.72) * 0.045 + view.pitch;
         const cosY = Math.cos(yaw);
         const sinY = Math.sin(yaw);
         const cosX = Math.cos(pitch);
@@ -1431,6 +1512,20 @@
     window.clearInterval(cycleTimer);
     cancelAnimationFrame(animationFrame);
   }
+
+  canvas.addEventListener("pointerdown", (event) => {
+    event.preventDefault();
+    beginDrag(event);
+  });
+  canvas.addEventListener("pointermove", (event) => {
+    if (!dragActive) return;
+    event.preventDefault();
+    continueDrag(event);
+  });
+  canvas.addEventListener("pointerup", endDrag);
+  canvas.addEventListener("pointercancel", endDrag);
+  canvas.addEventListener("lostpointercapture", endDrag);
+  window.addEventListener("blur", () => endDrag());
 
   window.addEventListener("resize", () => {
     window.clearTimeout(resizeTimer);
