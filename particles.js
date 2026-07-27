@@ -83,17 +83,17 @@
   const states = [
     {
       name: "AI & SOCIETY",
-      maxPoints: 3000,
+      maxPoints: 2400,
       draw: drawMediaPipeAiState
     },
     {
       name: "CLIMATE CHANGE COMMUNICATION",
-      maxPoints: 3800,
+      maxPoints: 2800,
       draw: drawGeographicEarthState
     },
     {
       name: "COMPUTATIONAL METHODS",
-      maxPoints: 3600,
+      maxPoints: 2200,
       draw: drawCommunityNetworkState
     }
   ];
@@ -1309,8 +1309,8 @@
         }
       }
 
-      const spring = reduceMotion ? 1 : (0.028 + particle.depth * 0.012);
-      const damping = 0.82;
+      const spring = reduceMotion ? 1 : (0.038 + particle.depth * 0.014);
+      const damping = 0.8;
       const driftX = reduceMotion ? 0 : Math.sin(now * 0.0013 + particle.seed) * 0.18 * particle.depth;
       const driftY = reduceMotion ? 0 : Math.cos(now * 0.001 + particle.seed * 1.2) * 0.18 * particle.depth;
 
@@ -1374,7 +1374,7 @@
     window.clearInterval(cycleTimer);
     cycleTimer = window.setInterval(() => {
       activateState((stateIndex + 1) % states.length);
-    }, 6800);
+    }, 10400);
   }
 
   function stopCycle() {
